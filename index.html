@@ -362,57 +362,41 @@
     }
 
     function renderDeck() {
-     area = document.getElementById('deckArea');
-    const pill = document.getElementById('deckStatusPill');
+  const area = document.getElementById('deckArea');
+  const pill = document.getElementById('deckStatusPill');
 
-    if (!allAudioComplete()) {
-      pill.textContent = 'Locked';
-      pill.classList.remove('ready');
+  if (!area || !pill) return;
 
-      area.className = 'locked-panel';
-      area.innerHTML =
-        '🔒 Complete the entire video presentation to unlock the training deck.';
+  if (!allAudioComplete()) {
+    pill.textContent = 'Locked';
+    pill.classList.remove('ready');
 
-      return;
-    }
+    area.className = 'locked-panel';
+    area.textContent =
+      '🔒 Complete the entire video presentation to unlock the training deck.';
+    return;
+  }
 
-    pill.textContent = 'Unlocked';
-    pill.classList.add('ready');
+  pill.textContent = 'Unlocked';
+  pill.classList.add('ready');
 
-    area.className = '';
+  area.className = '';
+  area.innerHTML = `
+    <p class="message success">
+      ✓ Video presentation complete. The training deck is now available.
+    </p>
+    <button class="primary"
+            id="downloadTrainingDeck"
+            type="button">
+      Download the training deck (PDF)
+    </button>
+  `;
 
-    area.innerHTML = `
-      <p class="message success">
-        ✓ Video presentation complete. The training deck is now available.
-      </p>
+  document
+    .getElementById('downloadTrainingDeck')
+    .addEventListener('click', downloadTrainingDeck);
+}
 
-      <button
-        class="primary"
-        id="downloadTrainingDeck"
-        type="button">
-        Download the training deck (PDF)
-      </button>
-    `;
-
-    document
-      .getElementById('downloadTrainingDeck')
-      .addEventListener('click', downloadTrainingDeck);
-    }
-      function completionPercent() {
-        const done = state.clips.filter(c => c.completed).length;
-        const videoPart = Math.round((done / AUDIO_FILES.length) * 80);
-        return Math.min(100, videoPart + (state.quizPassed ? 20 : 0));
-      }
-
-    function downloadTrainingDeck() {
-
-    if (!allAudioComplete()) {
-      setMessage(
-        'Complete the entire video presentation before downloading the training deck.',
-        'warning'
-      );
-      return;
-    }
 
     const link = document.createElement('a');
 
@@ -793,7 +777,13 @@
 
     audio.addEventListener('ended', () => {
       const duration = audio.duration;
-      const validFinish = Number.isFinite(duration) && maxAllowedTime >= duration - 1.5;
+      const validFinish =
+  Number.isFinite(duration) &&
+  duration > 0 &&
+  (
+    maxAllowedTime >= duration - 3 ||
+    audio.currentTime >= duration - 1
+  );
       if (!validFinish) {
         const rollback = Math.min(maxAllowedTime, Math.max(0, duration - 2));
         setInternalTime(rollback);
@@ -821,7 +811,7 @@
     });
 
     audio.addEventListener('error', () => {
-      setMessage(`Could not load ${AUDIO_FILES[selectedIndex]}. Place all four .mp4 files in the same folder as index.html.`, 'error');
+      setMessage(`Could not load ${AUDIO_FILES[selectedIndex]}. Place all .mp4 files in the same folder as index.html.`, 'error');
       playPause.disabled = true;
     });
 
