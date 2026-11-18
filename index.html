@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -190,19 +191,15 @@
     </section>
 
 
-    <section class="section" id="deckSection" aria-labelledby="deckHeading">
+  <section class="section" id="deckSection" aria-labelledby="deckHeading">
     <div class="section-head">
       <div>
         <h2 id="deckHeading">Training deck</h2>
-        <p>The training deck becomes available after you complete the video presentation.</p>
+        <p>Download the slides as a PDF for reference.</p>
       </div>
-      <span class="pill" id="deckStatusPill">Locked</span>
     </div>
-
-      <div id="deckArea" class="locked-panel">
-      Complete the entire video presentation to unlock the training deck.
-      </div>
-    </section>
+    <a class="primary download-link" href="./Service_Desk_Social_Engineering_Awareness_Training.pdf" download>Download the training deck (PDF)</a>
+  </section>
 
 
 
@@ -248,8 +245,7 @@
     const COURSE_VERSION = 1;
     const STORAGE_KEY = 'scenario-video-training-v1';
     const AUDIO_FILES = [
-      './Social Engineering Awareness Training for Service Desk Agents Recording.mp4',
-      //'./Training_Recording.mp4',
+      './Training_Recording.mp4',
      ];
 
     // Replace these procedural questions with content-specific questions if desired.
@@ -361,56 +357,11 @@
       return state.clips.every(clip => clip.completed);
     }
 
-    function renderDeck() {
-  const area = document.getElementById('deckArea');
-  const pill = document.getElementById('deckStatusPill');
-
-  if (!area || !pill) return;
-
-  if (!allAudioComplete()) {
-    pill.textContent = 'Locked';
-    pill.classList.remove('ready');
-
-    area.className = 'locked-panel';
-    area.textContent =
-      '🔒 Complete the entire video presentation to unlock the training deck.';
-    return;
-  }
-
-  pill.textContent = 'Unlocked';
-  pill.classList.add('ready');
-
-  area.className = '';
-  area.innerHTML = `
-    <p class="message success">
-      ✓ Video presentation complete. The training deck is now available.
-    </p>
-    <button class="primary"
-            id="downloadTrainingDeck"
-            type="button">
-      Download the training deck (PDF)
-    </button>
-  `;
-
-  document
-    .getElementById('downloadTrainingDeck')
-    .addEventListener('click', downloadTrainingDeck);
-}
-
-
-    const link = document.createElement('a');
-
-    link.href =
-      './Service_Desk_Social_Engineering_Awareness_Training.pdf';
-
-    link.download =
-      'Service_Desk_Social_Engineering_Awareness_Training.pdf';
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    function completionPercent() {
+      const done = state.clips.filter(c => c.completed).length;
+      const videoPart = Math.round((done / AUDIO_FILES.length) * 80);
+      return Math.min(100, videoPart + (state.quizPassed ? 20 : 0));
     }
-
 
     function renderOverall() {
       const completeCount = state.clips.filter(c => c.completed).length;
@@ -696,7 +647,6 @@
     function renderAll() {
       renderOverall();
       renderScenarios();
-      renderDeck();
       renderQuiz();
       renderCertificate();
     }
@@ -777,13 +727,7 @@
 
     audio.addEventListener('ended', () => {
       const duration = audio.duration;
-      const validFinish =
-  Number.isFinite(duration) &&
-  duration > 0 &&
-  (
-    maxAllowedTime >= duration - 3 ||
-    audio.currentTime >= duration - 1
-  );
+      const validFinish = Number.isFinite(duration) && maxAllowedTime >= duration - 1.5;
       if (!validFinish) {
         const rollback = Math.min(maxAllowedTime, Math.max(0, duration - 2));
         setInternalTime(rollback);
@@ -811,7 +755,7 @@
     });
 
     audio.addEventListener('error', () => {
-      setMessage(`Could not load ${AUDIO_FILES[selectedIndex]}. Place all .mp4 files in the same folder as index.html.`, 'error');
+      setMessage(`Could not load ${AUDIO_FILES[selectedIndex]}. Place all four .mp4 files in the same folder as index.html.`, 'error');
       playPause.disabled = true;
     });
 
