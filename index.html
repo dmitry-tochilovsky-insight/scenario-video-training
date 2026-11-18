@@ -190,15 +190,19 @@
     </section>
 
 
-  <section class="section" id="deckSection" aria-labelledby="deckHeading">
+    <section class="section" id="deckSection" aria-labelledby="deckHeading">
     <div class="section-head">
       <div>
         <h2 id="deckHeading">Training deck</h2>
-        <p>Download the slides as a PDF for reference.</p>
+        <p>The training deck becomes available after you complete the video presentation.</p>
       </div>
+      <span class="pill" id="deckStatusPill">Locked</span>
     </div>
-    <a class="primary download-link" href="./Service_Desk_Social_Engineering_Awareness_Training.pdf" download>Download the training deck (PDF)</a>
-  </section>
+
+      <div id="deckArea" class="locked-panel">
+      Complete the entire video presentation to unlock the training deck.
+      </div>
+    </section>
 
 
 
@@ -356,11 +360,72 @@
       return state.clips.every(clip => clip.completed);
     }
 
-    function completionPercent() {
-      const done = state.clips.filter(c => c.completed).length;
-      const videoPart = Math.round((done / AUDIO_FILES.length) * 80);
-      return Math.min(100, videoPart + (state.quizPassed ? 20 : 0));
+    function renderDeck() {
+     area = document.getElementById('deckArea');
+    const pill = document.getElementById('deckStatusPill');
+
+    if (!allAudioComplete()) {
+      pill.textContent = 'Locked';
+      pill.classList.remove('ready');
+
+      area.className = 'locked-panel';
+      area.innerHTML =
+        '🔒 Complete the entire video presentation to unlock the training deck.';
+
+      return;
     }
+
+    pill.textContent = 'Unlocked';
+    pill.classList.add('ready');
+
+    area.className = '';
+
+    area.innerHTML = `
+      <p class="message success">
+        ✓ Video presentation complete. The training deck is now available.
+      </p>
+
+      <button
+        class="primary"
+        id="downloadTrainingDeck"
+        type="button">
+        Download the training deck (PDF)
+      </button>
+    `;
+
+    document
+      .getElementById('downloadTrainingDeck')
+      .addEventListener('click', downloadTrainingDeck);
+    }
+      function completionPercent() {
+        const done = state.clips.filter(c => c.completed).length;
+        const videoPart = Math.round((done / AUDIO_FILES.length) * 80);
+        return Math.min(100, videoPart + (state.quizPassed ? 20 : 0));
+      }
+
+    function downloadTrainingDeck() {
+
+    if (!allAudioComplete()) {
+      setMessage(
+        'Complete the entire video presentation before downloading the training deck.',
+        'warning'
+      );
+      return;
+    }
+
+    const link = document.createElement('a');
+
+    link.href =
+      './Service_Desk_Social_Engineering_Awareness_Training.pdf';
+
+    link.download =
+      'Service_Desk_Social_Engineering_Awareness_Training.pdf';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    }
+
 
     function renderOverall() {
       const completeCount = state.clips.filter(c => c.completed).length;
@@ -646,6 +711,7 @@
     function renderAll() {
       renderOverall();
       renderScenarios();
+      renderDeck();
       renderQuiz();
       renderCertificate();
     }
