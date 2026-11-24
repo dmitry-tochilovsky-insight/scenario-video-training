@@ -244,6 +244,7 @@
 
     const COURSE_VERSION = 1;
     const STORAGE_KEY = 'scenario-video-training-v1';
+    const POWER_APP_URL = 'https://apps.powerapps.com/play/e/default-6c637512-c417-4e78-9d62-b61258e4b619/a/49743e0b-d1a3-4110-b078-ff7e309717cc?tenantId=6c637512-c417-4e78-9d62-b61258e4b619&hint=d9ca65c1-ee92-40c6-827c-b785096ce37b&sourcetime=1795548380074&training=Video%20Training';
     const AUDIO_FILES = [
       './Social Engineering Awareness Training for Service Desk Agents Recording.mp4',
      ];
@@ -531,23 +532,46 @@
         area.textContent = 'Complete the video and pass the knowledge check to unlock your certificate.';
         return;
       }
-      pill.textContent = 'Unlocked';
-      pill.classList.add('ready');
-      area.className = '';
-      area.innerHTML = `
-        <p class="message success">Requirements complete. Enter the learner name exactly as it should appear.</p>
-        <div class="name-row">
-          <label class="sr-only" for="learnerName">Learner name</label>
-          <input id="learnerName" maxlength="80" autocomplete="name" placeholder="Learner full name" value="${escapeHtml(state.learnerName)}">
-          <button class="primary" id="generateCertificate" type="button">Generate certificate</button>
-        </div>
-        <div class="certificate-actions" id="certificateActions" hidden>
-          <button class="primary" id="downloadCertificate" type="button">Download PNG</button>
-          <button class="secondary" id="printCertificate" type="button">Print / Save as PDF</button>
-        </div>
-        <p class="message" id="certificateMessage" aria-live="polite"></p>
-      `;
-      document.getElementById('generateCertificate').addEventListener('click', generateCertificate);
+     pill.textContent = 'Ready';
+pill.classList.add('ready');
+area.className = '';
+
+area.innerHTML = `
+  <p class="message success">
+    Requirements complete. Register your completion using your signed-in Insight account.
+  </p>
+
+  <p style="
+    max-width:680px;
+    margin:16px auto;
+    color:#aab4c8;
+    font-size:0.92rem;
+    line-height:1.55;
+    text-align:center;
+  ">
+    The first time you open Power Apps, select
+    <strong style="color:#f5f7fb;">Allow</strong>
+    when prompted for access. Verify that the displayed Insight account is yours,
+    then select
+    <strong style="color:#f5f7fb;">Register My Completion</strong>.
+  </p>
+
+  <div class="certificate-actions">
+    <a
+      class="primary"
+      href="${POWER_APP_URL}"
+      target="_blank"
+      rel="noopener noreferrer"
+      style="display:inline-block;text-decoration:none;"
+    >
+      Register My Completion
+    </a>
+  </div>
+
+  <p class="player-note" style="margin-top:14px;">
+    Power Apps will verify your signed-in Insight identity and email your official certificate.
+  </p>
+`;
     }
 
     function escapeHtml(value) {
