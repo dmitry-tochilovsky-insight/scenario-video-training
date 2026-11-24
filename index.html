@@ -537,8 +537,13 @@ pill.classList.add('ready');
 area.className = '';
 
 area.innerHTML = `
-  <p class="message success">
-    Requirements complete. Select Register My Completion to open Power Apps in a new tab and register your completion using your signed-in Insight account.
+  <p class="message success" style="
+    max-width:900px;
+    margin:0 auto 16px;
+    text-align:center;
+  ">
+    Requirements complete. Select Register My Completion to open Power Apps
+    in a new tab and register using your signed-in Insight account.
   </p>
 
   <p style="
@@ -556,7 +561,7 @@ area.innerHTML = `
     <strong style="color:#f5f7fb;">Register My Completion</strong>.
   </p>
 
-  <div class="certificate-actions">
+  <div class="certificate-actions" style="text-align:center;">
     <a
       class="primary"
       href="${POWER_APP_URL}"
@@ -567,10 +572,6 @@ area.innerHTML = `
       Register My Completion
     </a>
   </div>
-
-  <p class="player-note" style="margin-top:14px;">
-    Power Apps will verify your Insight identity, register your completion, and email your official certificate.
-  </p>
 `;
     }
 
